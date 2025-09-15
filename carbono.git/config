@@ -1,0 +1,7 @@
+[core]
+	repositoryformatversion = 1
+	filemode = true
+	bare = true
+[remote "origin"]
+	url = git@github.com:villawolfpy/carbono.git
+	tagOpt = --no-tags
