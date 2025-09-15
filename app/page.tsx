@@ -7,65 +7,29 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Icons } from "@/components/icons"
+import { useBalances } from "@/hooks/use-balances"
+import { useAccount } from "wagmi"
+import { ConnectButton } from "@rainbow-me/rainbowkit"
 
-declare global {
-  interface Window {
-    ethereum?: any
-  }
-}
 
 export default function HomePage() {
   const [quantity, setQuantity] = useState("")
-  const [isConnected, setIsConnected] = useState(false)
-  const [address, setAddress] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [carbonoBalance, setCarbonBalance] = useState("0")
-  const [experienciaBalance, setExperienciaBalance] = useState("0")
+  const { address, isConnected } = useAccount()
+  const { carbonoBalance, experienciaBalance, refetchBalances } = useBalances(address)
 
-  const connectWallet = async () => {
-    if (!window.ethereum) {
-      alert("Por favor instala MetaMask para usar esta aplicación")
-      return
-    }
-
-    try {
-      setIsLoading(true)
-      const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      })
-
-      if (accounts.length > 0) {
-        setAddress(accounts[0])
-        setIsConnected(true)
-        // Simulate loading balances
-        setCarbonBalance("100")
-        setExperienciaBalance("5")
-      }
-    } catch (error) {
-      console.error("Error connecting wallet:", error)
-      alert("Error al conectar la wallet")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const disconnectWallet = () => {
-    setIsConnected(false)
-    setAddress("")
-    setCarbonBalance("0")
-    setExperienciaBalance("0")
-  }
+  // Wallet connection is now handled by wagmi/RainbowKit
 
   const buyCarbono = async (amount: string) => {
     if (!isConnected) return
 
     try {
       setIsLoading(true)
-      // Simulate transaction
+      // TODO: Implement actual transaction using wagmi writeContract
+      // For now, simulate and refetch balances
       await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      const newBalance = Number(carbonoBalance) + Number(amount)
-      setCarbonBalance(newBalance.toString())
+      refetchBalances()
       alert(`¡Compra exitosa! Compraste ${amount} tokens CBO`)
     } catch (error) {
       alert("Error en la transacción")
@@ -75,18 +39,15 @@ export default function HomePage() {
   }
 
   const mintExperiencia = async () => {
-    if (!isConnected || Number(carbonoBalance) < 10) return
+    if (!isConnected || carbonoBalance < 10) return
 
     try {
       setIsLoading(true)
-      // Simulate minting
+      // TODO: Implement actual minting using wagmi writeContract
+      // For now, simulate and refetch balances
       await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      const newCarbonBalance = Number(carbonoBalance) - 10
-      const newNftBalance = Number(experienciaBalance) + 1
-
-      setCarbonBalance(newCarbonBalance.toString())
-      setExperienciaBalance(newNftBalance.toString())
+      refetchBalances()
       alert("¡NFT minteado exitosamente!")
     } catch (error) {
       alert("Error al mintear NFT")
@@ -95,7 +56,6 @@ export default function HomePage() {
     }
   }
 
-  const formatAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""
 
   const handleBuy = async () => {
     if (!quantity || Number(quantity) <= 0) {
@@ -119,33 +79,7 @@ export default function HomePage() {
                 <p className="text-sm text-muted-foreground">Plataforma Web3 de Tokens de Carbono y NFTs</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              {isConnected && address ? (
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-green-700">{formatAddress}</span>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={disconnectWallet}
-                    className="text-red-600 hover:text-red-700 bg-transparent"
-                  >
-                    Desconectar
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  onClick={connectWallet}
-                  disabled={isLoading}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                  <Icons.wallet className="w-4 h-4 mr-2" />
-                  {isLoading ? "Conectando..." : "Conectar Wallet"}
-                </Button>
-              )}
-            </div>
+            <ConnectButton />
           </div>
         </div>
       </header>
@@ -187,7 +121,7 @@ export default function HomePage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-green-600">{carbonoBalance}</p>
+                  <p className="text-2xl font-bold text-green-600">{carbonoBalance.toFixed(2)}</p>
                   <p className="text-sm text-muted-foreground">Tokens Carbono</p>
                 </CardContent>
               </Card>
