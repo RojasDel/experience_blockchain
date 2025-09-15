@@ -1,8 +1,5 @@
 "use client"
 
-export const dynamic = "force-dynamic"
-export const revalidate = 0
-
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { NetworkChecker } from "@/components/network-checker"
 import { Admin } from "@/components/admin"
