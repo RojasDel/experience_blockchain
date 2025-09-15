@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Icons } from "@/components/icons"
 import { useReadContract } from "wagmi"
-import { carbonoABI, experienciaABI } from "@/lib/abi"
+import { carbonoABI } from "@/lib/abi/carbono"
+import { experienciaABI } from "@/lib/abi/experiencia"
 import { config } from "@/lib/config"
 
 declare global {
@@ -24,6 +25,11 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false)
   const [carbonoBalance, setCarbonBalance] = useState("0")
   const [experienciaBalance, setExperienciaBalance] = useState("0")
+  const [accountInfo, setAccountInfo] = useState({
+    network: "",
+    chainId: "",
+    blockNumber: ""
+  })
 
   // Query real balances from blockchain
   const { data: realCarbonoBalance } = useReadContract({
@@ -213,29 +219,61 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Icons.coins className="h-5 w-5" />
+                      Balance CBO
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-2xl font-bold text-green-600">{carbonoBalance}</p>
+                    <p className="text-sm text-muted-foreground">Tokens Carbono</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Icons.image className="h-5 w-5" />
+                      NFTs Experiencia
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-2xl font-bold text-blue-600">{experienciaBalance}</p>
+                    <p className="text-sm text-muted-foreground">NFTs en tu wallet</p>
+                  </CardContent>
+                </Card>
+              </div>
+
               <Card>
-                <CardHeader className="pb-3">
+                <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Icons.coins className="h-5 w-5" />
-                    Balance CBO
+                    <Icons.wallet className="h-5 w-5" />
+                    Información de la Cuenta
                   </CardTitle>
+                  <CardDescription>Detalles de tu cuenta conectada</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold text-green-600">{carbonoBalance}</p>
-                  <p className="text-sm text-muted-foreground">Tokens Carbono</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Icons.image className="h-5 w-5" />
-                    NFTs Experiencia
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold text-blue-600">{experienciaBalance}</p>
-                  <p className="text-sm text-muted-foreground">NFTs en tu wallet</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Dirección</p>
+                      <p className="text-sm font-mono break-all">{address}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Estado</p>
+                      <p className="text-sm text-green-600 font-medium">Conectado ✓</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Red</p>
+                      <p className="text-sm">Sepolia Testnet</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Chain ID</p>
+                      <p className="text-sm">11155111</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
